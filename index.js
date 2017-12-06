@@ -4,7 +4,7 @@ const cp = require('child_process')
     , eol = os.EOL
     , async = require('async')
     , Papa = require('papaparse')
-    , domainsToTryFile = 'to-try.txt'   // Separated by newlines
+    , domainsToTryFile = 'names.txt'   // Separated by newlines
     , resultsFile = domainsToTryFile.replace(/\..*$/, '') + "-results.csv"
     ;
 
@@ -23,14 +23,16 @@ if (data[data.length - 1].length === 0) {
   data.splice(data.length - 1);
 }
 
+
 // Choose any extension you want or scan for multiple extensions
-data = data.map(d => d + ".com");
+data = data.map(d => d.toLowerCase());
 data = data.map(d => d.replace(/[àäâ]/g, 'a'));
 data = data.map(d => d.replace(/[éèëê]/g, 'e'));
 data = data.map(d => d.replace(/[ïî]/g, 'i'));
 data = data.map(d => d.replace(/[ôö]/g, 'o'));
 data = data.map(d => d.replace(/[üûù]/g, 'u'));
 data = data.map(d => d.replace(/[ç]/g, 'c'));
+data = data.map(d => d + ".com");
 
 
 // Data will be appended after every full domain analysis
