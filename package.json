@@ -1,6 +1,7 @@
 {
   "name": "domain-name-finder",
   "dependencies": {
-    "async": "^2.6.0"
+    "async": "^2.6.0",
+    "papaparse": "^4.3.6"
   }
 }
