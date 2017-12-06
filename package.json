@@ -1,5 +1,5 @@
 {
-  "name": "domain name finder",
+  "name": "domain-name-finder",
   "dependencies": {
     "async": "^2.6.0"
   }
