@@ -3,9 +3,12 @@ const cp = require('child_process')
     , os = require('os')
     , eol = os.EOL
     , async = require('async')
+    , Papa = require('papaparse')
+    , domainsToTryFile = 'to-try.txt'   // Separated by newlines
+    , resultsFile = "results.csv"
     ;
 
-var _data = fs.readFileSync('to-try.txt', 'utf8');
+var _data = fs.readFileSync('data/' + domainsToTryFile, 'utf8');
 var data = _data.split(eol);
 var results = [];
 var eolToString = eol === '\n' ? '\\n' : '\\r\\n';
@@ -30,11 +33,11 @@ async.eachOfSeries(data, function (domain, k, cb) {
   // Query primary WHOIS server
   cp.exec("whois " + domain, {}, function (err, sout, serr) {
     if (sout.match(/No match for/)) {
-      console.log("free");
+      console.log(" free");
       results.push({ domain: domain, available: 'yes' });
       return cb();
     } else {
-      console.log("taken");
+      console.log(" taken");
 
       // Find and query registrar WHOIS server
       var registrarWHOIS = sout.match(new RegExp("Registrar WHOIS Server: ([^" + eolToString + "]*)"));
@@ -63,7 +66,10 @@ async.eachOfSeries(data, function (domain, k, cb) {
 }, function afterRun (err) {
   console.log("=========================");
   console.log("Done with domain scraping");
-  console.log(results);
+  var csvified = Papa.unparse(results);
+  process.stdout.write("Writing to " + resultsFile + " ... ");
+  fs.writeFileSync('data/' + resultsFile, csvified, 'utf8');
+  console.log("done");
 });
 
 
