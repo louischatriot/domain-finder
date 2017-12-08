@@ -1,14 +1,29 @@
 const cp = require('child_process')
     , fs = require('fs')
+    , path = require('path')
     , os = require('os')
     , eol = os.EOL
     , async = require('async')
     , Papa = require('papaparse')
-    , domainsToTryFile = 'names.txt'   // Separated by newlines
-    , resultsFile = domainsToTryFile.replace(/\..*$/, '') + "-results.csv"
     ;
 
-var _data = fs.readFileSync('data/' + domainsToTryFile, 'utf8');
+var domainsToTryFile = process.argv.length >= 3 ? process.argv[2] : 'domains.txt'   // Domains separated by newlines
+  , resultsFile = domainsToTryFile.replace(/\..*$/, '') + "-results.csv"
+  ;
+
+// Force use of data subdirectory
+// And refuse to start if not forced when output file already exists
+domainsToTryFile = path.join('data', path.basename(domainsToTryFile));
+resultsFile = path.join('data', path.basename(resultsFile));
+console.log("Using source file " + domainsToTryFile);
+console.log("Will output to " + resultsFile);
+if (fs.existsSync(resultsFile) && (process.argv.length < 4 || process.argv[3] !== 'force')) {
+  console.log("Output file " + resultsFile + " already exists, cautiously refusing to start");
+  console.log("Use command 'node index.js " + path.basename(domainsToTryFile) + " force' to proceed anyway");
+  process.exit(0);
+}
+
+var _data = fs.readFileSync(domainsToTryFile, 'utf8');
 var data = _data.split(eol);
 var results = [];
 var eolToString = eol === '\n' ? '\\n' : '\\r\\n';
@@ -32,16 +47,22 @@ data = data.map(d => d.replace(/[ïî]/g, 'i'));
 data = data.map(d => d.replace(/[ôö]/g, 'o'));
 data = data.map(d => d.replace(/[üûù]/g, 'u'));
 data = data.map(d => d.replace(/[ç]/g, 'c'));
+data = data.map(d => d.replace(/[']/g, ''));
 data = data.map(d => d + ".com");
+
+// Remove duplicates
+data = data.filter(function (elt, i, currentData) {
+  return currentData.indexOf(elt) === i;
+});
 
 
 // Data will be appended after every full domain analysis
 // to be able to stop the script whenever we want
 var fields = ['domain', 'available', 'regOrg', 'regPhone', 'regEmail'];
-fs.writeFileSync('data/' + resultsFile, fields.join(',') + eol, 'utf8');
+fs.writeFileSync(resultsFile, fields.join(',') + eol, 'utf8');
 function saveNewDomain (d) {
   var csvified = Papa.unparse({ data: [d], fields: fields }, { header: false });
-  fs.appendFileSync('data/' + resultsFile, csvified + eol, 'utf8');
+  fs.appendFileSync(resultsFile, csvified + eol, 'utf8');
 }
 
 
