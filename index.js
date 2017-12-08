@@ -48,6 +48,7 @@ data = data.map(d => d.replace(/[ôö]/g, 'o'));
 data = data.map(d => d.replace(/[üûù]/g, 'u'));
 data = data.map(d => d.replace(/[ç]/g, 'c'));
 data = data.map(d => d.replace(/[']/g, ''));
+data = data.map(d => d.trim());
 data = data.map(d => d + ".com");
 
 // Remove duplicates
