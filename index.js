@@ -22,6 +22,10 @@ if (fs.existsSync(resultsFile) && (process.argv.length < 4 || process.argv[3] !=
   console.log("Use command 'node index.js " + path.basename(domainsToTryFile) + " force' to proceed anyway");
   process.exit(0);
 }
+if (!fs.existsSync(domainsToTryFile)) {
+  console.log(domainsToTryFile + " doesn't exist, stopping");
+  process.exit(0);
+}
 
 var _data = fs.readFileSync(domainsToTryFile, 'utf8');
 var data = _data.split(eol);
@@ -47,7 +51,7 @@ data = data.map(d => d.replace(/[ïî]/g, 'i'));
 data = data.map(d => d.replace(/[ôö]/g, 'o'));
 data = data.map(d => d.replace(/[üûù]/g, 'u'));
 data = data.map(d => d.replace(/[ç]/g, 'c'));
-data = data.map(d => d.replace(/[']/g, ''));
+data = data.map(d => d.replace(/[',;\.]/g, ''));
 data = data.map(d => d.trim());
 data = data.map(d => d + ".com");
 
